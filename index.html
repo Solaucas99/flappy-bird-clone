@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+</head>
+<body>
+    
+    <script type="module">
+        // import kaboom lib
+        import kaboom from "https://unpkg.com/kaboom/dist/kaboom.mjs";
+        
+        // initialize kaboom context
+        kaboom({
+            global: true,
+            fullscreen: true,
+            debug: true,
+            clearColor: [0, 0, 0, 1],
+            background: [233, 233, 233]
+        });
+
+        loadRoot('https://i.imgur.com/');
+        loadSprite('fundo', 'lO5ZGyx.png');
+        loadSprite('ch', 'tgsVBV2.png');
+        loadSprite('obs', 'LPVvqY5.png');
+        loadSprite('chao', 'KFJUOxc.png');
+
+       scene('game', () => {
+        layers(['bg', 'game', 'ui'], 'game')
+        
+        let PIPE_GAP = 170;
+
+        function producePipes () {
+            add([
+            sprite('obs', {height: 350}),
+            pos(width(), height()/1.4 + PIPE_GAP/2),
+            'pipe',
+            area(),
+            ])
+
+            add([
+                sprite('obs', {flipY: true, height: 350}),
+                pos(width(), height()/3.4 + PIPE_GAP/2),
+                origin('botleft'),
+                'pipe',
+                area()
+            ])
+        }
+
+        loop(2, () => {
+            producePipes();
+            PIPE_GAP = Math.random() * (250 - 120) + 120;
+        })
+
+        const player = add([
+            sprite('ch'),
+            scale(2),
+            pos(30, 40),
+            area(),
+            body(),
+        ])
+       
+        add([
+            sprite('fundo', {width: width(), height: height()}),
+            layer('bg'),
+        ])
+
+        action('pipe', (pipe) => {
+            pipe.move(-180, 0);
+        })
+
+        player.collides('pipe', () => {
+          go('gameover')
+        })
+
+        player.action(() => {
+            if (player.pos.y > height() + 30 || player.pos.y < -30) {
+                go('gameover') 
+            }
+        })
+
+        keyPress('space', () => {
+            player.jump();
+        })
+       })
+
+       scene('start', () => {
+           add([
+            text("Press enter to start game"),   // sprite() component makes it render as a sprite
+           ]);
+
+           keyPress('enter', () => {
+               go('game');
+           })
+       })
+
+       scene('gameover', () => {
+           add([
+            text("Game Over! Press enter to play again"),   // sprite() component makes it render as a sprite
+           ]);
+
+           keyPress('enter', () => {
+               go('game');
+           })
+       })
+
+       go('start');
+        
+        </script>
+</body>
+</html>
